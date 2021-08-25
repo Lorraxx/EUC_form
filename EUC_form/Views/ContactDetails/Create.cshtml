@@ -1,0 +1,129 @@
+﻿@using Microsoft.Extensions.Localization
+@using EUC_form.Controllers
+@model EUC_form.Models.ContactDetails
+
+@inject IStringLocalizer<ContactDetailsController> Localizer
+
+
+@{
+    ViewData["Title"] = @Localizer["Title"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<ul style="float:right">
+    <li>
+        @Html.ActionLink(
+        "Czech",
+        ViewContext.RouteData.Values["action"].ToString(),
+        new { language = "cs-CZ" })
+    </li>
+    <li>
+        @Html.ActionLink(
+        "English",
+        ViewContext.RouteData.Values["action"].ToString(),
+        new { language = "en-US" })
+    </li>
+</ul>
+<h1>@Localizer["Title"]</h1>
+
+<h4>@Localizer["ContactDetails"]</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="FirstName" class="control-label"></label>
+                <input asp-for="FirstName" class="form-control" />
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LastName" class="control-label"></label>
+                <input asp-for="LastName" class="form-control" />
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Email" class="control-label"></label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PersonalIdentificationNumber" class="control-label"></label>
+                <input asp-for="PersonalIdentificationNumber" class="form-control" id="PIN" />
+                <span asp-validation-for="PersonalIdentificationNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="checkbox" id="PINcheck" onclick="PIN_check()" />
+                <label class="control-label" for="PINcheck">@Localizer["PIN_checkButtonLabel"]</label>
+            </div>
+            <div class="form-group">
+                <label asp-for="Nationality" class="control-label"></label>
+                <select asp-for="Nationality" asp-items="(IEnumerable<SelectListItem>)ViewBag.CountryList" class="form-control">
+                    <option selected="selected" value="">Please select</option>
+                </select>
+                <span asp-validation-for="Nationality" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DateOfBirth" class="control-label"></label>
+                <input asp-for="DateOfBirth" max="@DateTime.Today.Date.ToString("yyyy-MM-dd")" class="form-control" />
+                <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Gender" class="control-label"></label>
+                <select asp-for="Gender" asp-items="Html.GetEnumSelectList<ContactDetails.GenderEnum>()" class="form-control">
+                    <option selected="selected" value="">Please select</option>
+                </select>
+                <span asp-validation-for="Gender" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="checkbox" id="GDPRcheck" onclick="GDPR_check()" />
+                <label class="control-label" for="GDPRcheck">
+
+                    @Html.ActionLink("GDPR",
+                        "GDPR",
+                        "Home",
+                        null,
+                        null)
+                    : @Localizer["GDPR_agreement"]
+                </label>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="@Localizer["Submit"]" class="btn btn-primary" id="submitBtn" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">@Localizer["BackToList"]</a>
+</div>
+
+<script>
+    function PIN_check() {
+        // Get the checkbox
+        var checkBox = document.getElementById("PINcheck");
+        // Get the output text
+        var inputPIN = document.getElementById("PIN");
+
+        // If the checkbox is checked, display the output text
+        if (checkBox.checked == true) {
+            inputPIN.disabled = true;
+        } else {
+            inputPIN.disabled = false;
+        }
+    }
+    function GDPR_check() {
+        var checkBox = document.getElementById("GDPRcheck");
+        var submitBtn = document.getElementById("submitBtn");
+
+        if (checkBox.checked == true) {
+            submitBtn.disabled = false;
+        } else {
+            submitBtn.disabled = true;
+        }
+    }
+</script>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
