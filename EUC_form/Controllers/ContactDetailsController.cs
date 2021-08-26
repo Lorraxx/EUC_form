@@ -70,18 +70,23 @@ namespace EUC_form.Controllers
             "PersonalIdentificationNumber," +
             "LastName,FirstName," +
             "Nationality,DateOfBirth," +
-            "Gender," +
-            "ID"
+            "Gender,"
             )] 
             ContactDetails contactDetails)
         {
             //
-            if (ModelState.IsValid && contactDetails.IsValid())
+            if (ModelState.IsValid)
             {
-                await _repository.Add(contactDetails);
-                return RedirectToAction(nameof(Index));
+                if (contactDetails.IsValid())
+                {
+                    await _repository.Add(contactDetails);
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    ViewBag.ServerSideValidationError = true;
+                }
             }
-
             ViewBag.CountryList = HelperFunctions.GetCountryList();
             return View(contactDetails);
         }

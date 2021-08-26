@@ -31,7 +31,7 @@ namespace EUC_form.DAL.Templates
         }
         public async Task Add(T entity)
         {
-            // Todo: resolve concurent access to db file
+            // Todo: Resolve concurent access to db file
 
             List<T> listT = (await this.GetAll()).Append(entity).ToList();
 

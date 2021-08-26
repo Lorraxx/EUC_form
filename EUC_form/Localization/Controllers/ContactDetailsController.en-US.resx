@@ -123,16 +123,23 @@
   <data name="ContactDetails" xml:space="preserve">
     <value>Contact details</value>
   </data>
+  <data name="CreateNew" xml:space="preserve">
+    <value>Create New</value>
+  </data>
   <data name="GDPR_agreement" xml:space="preserve">
     <value>I agree to the processing of personal data.</value>
   </data>
   <data name="PIN_checkButtonLabel" xml:space="preserve">
     <value>I don't have personal identification number</value>
   </data>
+  <data name="ServerSideValidationError" xml:space="preserve">
+    <value>Server couldn't validate your data. Please check that you have entered correct values.</value>
+  </data>
   <data name="Submit" xml:space="preserve">
     <value>Submit</value>
   </data>
   <data name="Title" xml:space="preserve">
     <value>Create</value>
+    <comment>Title for the Create view</comment>
   </data>
 </root>

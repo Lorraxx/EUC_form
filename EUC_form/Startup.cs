@@ -89,7 +89,7 @@ namespace EUC_form
             app.Use(async (context, next) =>
             {
                 var lang = context.Request.Path.Value.Split('/').Skip(1).First();
-                //lang = lang == "cs" ? "cs-CZ" : "en-US";
+                lang = string.IsNullOrEmpty(lang) ? "en-US" : lang;
                 CultureInfo.CurrentCulture = new CultureInfo(lang);
                 CultureInfo.CurrentUICulture = CultureInfo.CurrentCulture;
 

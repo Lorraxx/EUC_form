@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Linq;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
@@ -67,7 +68,8 @@ namespace EUC_form.Models
         [Display(
             Name = nameof(Localization.ContactDetailResx.DOB), 
             ResourceType = typeof(Localization.ContactDetailResx))]
-        [DataType(DataType.Date), DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
+        [DataType(DataType.Date)] 
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         public DateTime DateOfBirth { get; set; }
 
         [Display(
@@ -122,12 +124,153 @@ namespace EUC_form.Models
                 this.PersonalIdentificationNumber = null;
                 return true;
             }
-            else
+
+            // Fail - PIN isn't 9-10 numbers separated by '/'
+            if (!Regex.IsMatch(this.PersonalIdentificationNumber, "[0-9]{6}/[0-9]{3,4}"))
+                return false;
+
+            bool
+                RC  = false, // PIN
+                ECP = false; // registration number of the insured
+
+            // Separate numbers to YYMMDD/CCC(C)
+
+            UInt32
+                YY,     // Year
+                MM,     // Month
+                DD,     // Day of month
+                CCCC;   // Check sum
+
+            int CCCC_length = this.PersonalIdentificationNumber.Length - 7;
+
+            try
             {
-                return Regex.IsMatch(this.PersonalIdentificationNumber, "[0-9]{6}/[0-9]{3,4}");
+                YY      = Convert.ToUInt32(this.PersonalIdentificationNumber.Substring(0, 2));
+                MM      = Convert.ToUInt32(this.PersonalIdentificationNumber.Substring(2, 2));
+                DD      = Convert.ToUInt32(this.PersonalIdentificationNumber.Substring(4, 2));
+                CCCC    = Convert.ToUInt32(this.PersonalIdentificationNumber.Substring(7, CCCC_length));
+            }
+            catch (Exception)
+            {
+                throw;
             }
 
-            // todo: Validate with the PIN checksum.
+            // Fail - Last three digits can't be zeroes
+            if (CCCC == 0)
+                return false;
+
+            // Determine month and gender
+            if (MM > 50)
+            {
+                // Female
+                if (this.Gender != GenderEnum.Female)
+                    return false;
+
+                MM -= 50;
+            }
+            else
+            {
+                // Male
+                if (this.Gender != GenderEnum.Male)
+                    return false;
+            }
+            if (MM > 20)
+            {
+                RC = true;
+                MM -= 20;
+            }
+
+            // Calculate day
+            if (DD > 40)
+            {
+                ECP = true;
+                DD -= 40;
+            }
+
+            // Invalid RČ / EČP month +20 and at the same time day +40.
+            if (ECP && RC)
+                return false;
+
+            // Determine year
+            if (CCCC_length == 3)
+            {
+                if (YY > 53)
+                {
+                    YY = 1800 + YY;
+                }
+                else
+                {
+                    YY = 1900 + YY;
+                }
+            }
+            if (CCCC_length == 4)
+            {
+                if (YY > 53)
+                {
+                    YY = 1900 + YY;
+                }
+                else
+                {
+                    YY = 2000 + YY;
+                }
+            }
+
+            // Validate date
+            DateTime dateOfBirth;
+            string dayOfBirthAsString = YY.ToString() + "/" + MM.ToString() + "/" + DD.ToString();
+            if (DateTime.TryParseExact( dayOfBirthAsString, 
+                                        "yyyy/MM/dd", 
+                                        CultureInfo.InvariantCulture,
+                                        DateTimeStyles.None, out dateOfBirth )
+               )
+            {
+                // DD/MM/YYYY is a valid date
+                if (!dateOfBirth.Date.Equals(this.DateOfBirth))
+                {
+                    // Dates of birth are different
+                    return false;
+                }
+            }
+            else
+            {
+                // Data are not a valid date
+                return false;
+            }
+
+            // Inadmissible ending of EČP.
+            if (ECP)
+            {
+                if (this.PersonalIdentificationNumber.Length == 10
+                    && CCCC < 600)
+                    return false;
+
+                if (this.PersonalIdentificationNumber.Length == 11
+                    && CCCC < 6000)
+                    return false;
+            }
+
+            // RC has to be divisible by 11
+            if (this.PersonalIdentificationNumber.Length == 10)
+            {
+                string noSlashPIN = this.PersonalIdentificationNumber.Substring(0, 6) 
+                    + this.PersonalIdentificationNumber.Substring(7, CCCC_length);
+                UInt32 uIntRC;
+                try
+                {
+                    uIntRC = Convert.ToUInt32(noSlashPIN);
+                    if ((uIntRC % 11) != 0)
+                    {
+                        return false;
+                    }
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
+
+
+            return true;
         }
 
         private bool EmailIsValid()

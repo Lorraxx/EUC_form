@@ -28,6 +28,12 @@
 
 <h4>@Localizer["ContactDetails"]</h4>
 <hr />
+@if (ViewBag.ServerSideValidationError == true)
+{
+<div class="alert alert-danger" role="alert">
+    @Localizer["ServerSideValidationError"]
+</div>
+}
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
@@ -88,7 +94,7 @@
                 </label>
             </div>
             <div class="form-group">
-                <input type="submit" value="@Localizer["Submit"]" class="btn btn-primary" id="submitBtn" />
+                <input type="submit" value="@Localizer["Submit"]" class="btn btn-primary" id="submitBtn" disabled />
             </div>
         </form>
     </div>

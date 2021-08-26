@@ -79,6 +79,15 @@ namespace EUC_form.Localization.Controllers {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to crtNew.
+        /// </summary>
+        public static string CreateNew {
+            get {
+                return ResourceManager.GetString("CreateNew", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to I agree to the processing of personal data..
         /// </summary>
         public static string GDPR_agreement {
@@ -93,6 +102,15 @@ namespace EUC_form.Localization.Controllers {
         public static string PIN_checkButtonLabel {
             get {
                 return ResourceManager.GetString("PIN_checkButtonLabel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to serverValidationFalied.
+        /// </summary>
+        public static string ServerSideValidationError {
+            get {
+                return ResourceManager.GetString("ServerSideValidationError", resourceCulture);
             }
         }
         
